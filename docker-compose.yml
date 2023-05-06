@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: ${STACK_NAME?Variable not set}-db
+    build:
+      context: ./src/db
+      dockerfile: db.dockerfile
+    command:
+      - -c
+      - max_prepared_transactions=100
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./src/db/backups:/backups
+    environment:
+      #       If you need to create multiple database you can add coma separated databases eg gis,data
+      - POSTGRES_DBNAME=${DATABASE_NAME},test
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASS=${DATABASE_PASSWORD}
+      - TARGET_DB=${DATABASE_NAME}_restore
+      - WITH_POSTGIS=false
+      - ALLOW_IP_RANGE=0.0.0.0/0
+      # Add extensions you need to be enabled by default in the DB. Default are the five specified below
+      - POSTGRES_MULTIPLE_EXTENSIONS=hstore
+    #       - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    restart: on-failure
+    healthcheck:
+      test: "exit 0"
+
+  pgadmin:
+    restart: always
+    container_name: ${STACK_NAME?Variable not set}-pg_admin
+    image: dpage/pgadmin4
+    networks:
+      - project-tier
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+  dbbackups:
+    container_name: ${STACK_NAME?Variable not set}-dbbackups
+    image: kartoza/pg-backup:13.0
+    hostname: pg-backups
+    volumes:
+      - ./src/db/backups:/backups
+    environment:
+      - DUMPPREFIX=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASS=${DATABASE_PASSWORD}
+      - POSTGRES_PORT=${DATABASE_PORT}
+      - POSTGRES_HOST=db
+      - POSTGRES_DBNAME=${DATABASE_NAME}
+      - CRON_SCHEDULE="*/1 * * * *"
+    restart: on-failure
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+    driver: local
