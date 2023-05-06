@@ -30,13 +30,13 @@ services:
       test: "exit 0"
 
   pgadmin:
-    restart: always
     container_name: ${STACK_NAME?Variable not set}-pg_admin
     image: dpage/pgadmin4
     depends_on:
       - db
     env_file:
       - .env
+    restart: on-failure
 
   dbbackups:
     container_name: ${STACK_NAME?Variable not set}-dbbackups
