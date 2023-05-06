@@ -33,8 +33,6 @@ services:
     restart: always
     container_name: ${STACK_NAME?Variable not set}-pg_admin
     image: dpage/pgadmin4
-    networks:
-      - project-tier
     depends_on:
       - db
     env_file:
