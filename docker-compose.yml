@@ -1,5 +1,8 @@
 version: "3.9"
 
+ 
+
+
 services:
   db:
     container_name: ${STACK_NAME?Variable not set}-db
@@ -29,32 +32,32 @@ services:
     healthcheck:
       test: "exit 0"
 
-  pgadmin:
-    container_name: ${STACK_NAME?Variable not set}-pg_admin
-    image: dpage/pgadmin4
-    depends_on:
-      - db
-    env_file:
-      - .env
-    restart: on-failure
+  # pgadmin:
+  #   container_name: ${STACK_NAME?Variable not set}-pg_admin
+  #   image: dpage/pgadmin4
+  #   depends_on:
+  #     - db
+  #   env_file:
+  #     - .env
+  #   restart: on-failure
 
-  dbbackups:
-    container_name: ${STACK_NAME?Variable not set}-dbbackups
-    image: kartoza/pg-backup:13.0
-    hostname: pg-backups
-    volumes:
-      - ./src/db/backups:/backups
-    environment:
-      - DUMPPREFIX=${DATABASE_NAME}
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASS=${DATABASE_PASSWORD}
-      - POSTGRES_PORT=${DATABASE_PORT}
-      - POSTGRES_HOST=db
-      - POSTGRES_DBNAME=${DATABASE_NAME}
-      - CRON_SCHEDULE="*/1 * * * *"
-    restart: on-failure
-    depends_on:
-      - db
+  # dbbackups:
+  #   container_name: ${STACK_NAME?Variable not set}-dbbackups
+  #   image: kartoza/pg-backup:13.0
+  #   hostname: pg-backups
+  #   volumes:
+  #     - ./src/db/backups:/backups
+  #   environment:
+  #     - DUMPPREFIX=${DATABASE_NAME}
+  #     - POSTGRES_USER=${DATABASE_USER}
+  #     - POSTGRES_PASS=${DATABASE_PASSWORD}
+  #     - POSTGRES_PORT=${DATABASE_PORT}
+  #     - POSTGRES_HOST=db
+  #     - POSTGRES_DBNAME=${DATABASE_NAME}
+  #     - CRON_SCHEDULE="*/1 * * * *"
+  #   restart: on-failure
+  #   depends_on:
+  #     - db
 
 volumes:
   postgres_data:
