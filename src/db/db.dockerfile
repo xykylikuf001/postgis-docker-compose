@@ -1,3 +1,3 @@
-FROM kartoza/postgis:13.0
+FROM kartoza/postgis:17.0
 
 COPY ./initialize.sh /docker-entrypoint-initdb.d/

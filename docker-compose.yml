@@ -30,6 +30,8 @@ services:
   pgadmin:
     container_name: ${STACK_NAME?Variable not set}-pg_admin
     image: dpage/pgadmin4
+    ports:
+      - "${PGADMIN_LISTEN_PORT}:${PGADMIN_LISTEN_PORT}"
     depends_on:
       - db
     env_file:
